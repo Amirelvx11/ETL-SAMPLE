@@ -51,10 +51,9 @@ def transform_tamper_rows(df: pd.DataFrame) -> pd.DataFrame:
         return df
 
     rows: List[Dict[str, Any]] = []
-    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    now = datetime.now(timezone.utc).replace(tzinfo=None, microsecond=0)
     
     for r in df.itertuples(index=False):
-
         try:
             row = {
                 "Id": str(uuid.uuid4()).upper(),
@@ -80,11 +79,10 @@ def transform_tamper_rows(df: pd.DataFrame) -> pd.DataFrame:
                 "tamper row transform failed",
                 extra={
                     "tamper_log_id": getattr(r, "TamperLogId", None),
-                    "row": r._asdict(),
                     "error": str(exc),
                 },
                 exc_info=True,
             )
-            raise
+            continue
 
-    return pd.DataFrame(rows).convert_dtypes()
+    return pd.DataFrame(rows)
