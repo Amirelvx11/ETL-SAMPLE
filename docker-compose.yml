@@ -1,0 +1,40 @@
+services:
+  tamper_log_service:
+    container_name: tamper_log
+    image: tamper-log-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      ssh:
+        - default
+
+    restart: always
+
+    env_file:
+      - .env
+
+    networks:
+      - logs_net
+
+    volumes:
+      - tamper-log-service-logs:/var/log
+
+    command: ["python", "/app/run_scheduler.py"]
+
+    healthcheck:
+      test: ["CMD-SHELL", "python -m tools.healthcheck || exit 1"]
+      interval: 2m
+      timeout: 10s
+      retries: 3
+      start_period: 10m
+
+
+volumes:
+  tamper-log-service-logs:
+    name: tamper-log-service-logs
+    external: true
+
+
+networks:
+  logs_net:
+    external: true
