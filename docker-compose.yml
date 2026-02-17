@@ -32,8 +32,6 @@ services:
 volumes:
   tamper-log-service-logs:
     name: tamper-log-service-logs
-    external: true
-
 
 networks:
   logs_net:

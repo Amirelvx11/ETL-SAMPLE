@@ -12,7 +12,7 @@ def get_last_inserted_tamper_id() -> int:
                 conn.execute(
                     text("""
                         SELECT ISNULL(MAX(TamperLogId), 0)
-                        FROM Hamon.mfu.DeviceTamperLog
+                        FROM Hamon.mfu.DeviceTamperLog (NOLOCK)
                     """)
                 ).scalar_one()
             )
