@@ -3,9 +3,9 @@ from sqlalchemy import text
 from backend_toolkit.logger import get_logger
 from src.config import mssql_engine, mysql_engine, BATCH_SIZE
 
-logger = get_logger("insert")
+logger = get_logger("fetch")
 
-def get_last_inserted_tamper_id(run_id: str) -> int:
+def get_last_inserted_tamper_id() -> int:
     try:
         with mssql_engine.connect() as conn:
             return int(
@@ -19,13 +19,13 @@ def get_last_inserted_tamper_id(run_id: str) -> int:
     except Exception as exc:
         logger.error(
             "failed to load last tamper_log_id",
-            extra={"run_id": run_id, "error": str(exc)},
+            extra={"error": str(exc)},
             exc_info=True,
         )
         raise
 
 
-def fetch_new_tamper_logs(last_id: int, run_id: str) -> pd.DataFrame:
+def fetch_new_tamper_logs(last_id: int) -> pd.DataFrame:
     sql = text(f"""
         SELECT
             id        AS TamperLogId,
@@ -46,7 +46,7 @@ def fetch_new_tamper_logs(last_id: int, run_id: str) -> pd.DataFrame:
     except Exception as exc:
         logger.error(
             "failed to fetch tamper logs",
-            extra={"run_id": run_id, "error": str(exc)},
+            extra={"error": str(exc)},
             exc_info=True,
         )
         raise

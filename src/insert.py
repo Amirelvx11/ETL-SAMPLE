@@ -5,7 +5,7 @@ from src.config import mssql_engine
 logger = get_logger("insert")
 
 
-def insert_tamper_logs(df: pd.DataFrame, run_id: str | None) -> int:
+def insert_tamper_logs(df: pd.DataFrame) -> int:
     if df.empty:
         return 0
 
@@ -23,7 +23,7 @@ def insert_tamper_logs(df: pd.DataFrame, run_id: str | None) -> int:
     except Exception as exc:
         logger.error(
             "tamper log insert failed",
-            extra={"run_id": run_id, "row_count": len(df), "error": str(exc)},
+            extra={"row_count": len(df), "error": str(exc)},
             exc_info=True,
         )
         raise
