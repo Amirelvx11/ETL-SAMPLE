@@ -18,7 +18,7 @@ def run_etl():
     
     try:
         while True:
-            source_df = fetch_new_tamper_logs(start_id)
+            source_df = fetch_new_tamper_logs(last_processed_id)
             if source_df.empty:
                 break
 
@@ -44,7 +44,10 @@ def run_etl():
             },
         )
     except Exception as e:
-        logger.critical("main etl cycle error", extra={"error":str(e)})
+        logger.critical(
+            "main etl cycle error",
+            extra={"error": str(e)},
+        )
         raise
 
 
