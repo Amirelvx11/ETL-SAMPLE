@@ -1,47 +1,9 @@
 import os
-import math
-from typing import Any
-from datetime import datetime
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
 load_dotenv()
 
-# ----------- HELPERS -----------
-def _parse_datetime(value) -> datetime | None:
-    if value is None:
-        return None
-
-    if isinstance(value, datetime):
-        return value.replace(tzinfo=None, microsecond=0)
-
-    s = str(value).strip()
-
-    if "." in s:
-        try:
-            return datetime.strptime(s, "%Y-%m-%d %H:%M:%S.%f")
-        except ValueError:
-            pass
-
-    return datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
-
-
-def _resolve_part_id(serial: str | None) -> str | None:
-    if not serial:
-        return None
-    for prefix, guid in PART_ID_BY_PREFIX.items():
-        if serial.startswith(prefix):
-            return guid
-    return None
-
-
-def _clean_nan(row: dict[str, Any]) -> dict[str, Any]:
-    for k, v in row.items():
-        if isinstance(v, float) and math.isnan(v):
-            row[k] = None
-    return row
-
-# ----------- ENVIRONMENT VARIABLES -----------
 
 def _require_env(key: str) -> str:
     value = os.getenv(key)
