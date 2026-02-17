@@ -14,18 +14,19 @@ def _parse_datetime(value) -> datetime | None:
     if value is None:
         return None
 
-    if isinstance(value, datetime):
-        return value.replace(tzinfo=None, microsecond=0)
-
-    s = str(value).strip()
-
-    if "." in s:
-        try:
-            return datetime.strptime(s, "%Y-%m-%d %H:%M:%S.%f")
-        except ValueError:
+    # MySQL zero-date guards
+    if isinstance(value, str):
+        s = value.strip()
+        if not s or s.startswith(("0000-00-00", "2000-00-00")):
             return None
 
-    return datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+    try:
+        ts = pd.to_datetime(value, errors="coerce")
+        if pd.isna(ts):
+            return None
+        return ts.to_pydatetime().replace(tzinfo=None, microsecond=0)
+    except Exception:
+        return None
 
 
 def _resolve_part_id(serial: str | None) -> str | None:
@@ -78,6 +79,7 @@ def transform_tamper_rows(df: pd.DataFrame) -> pd.DataFrame:
             logger.error(
                 "tamper row transform failed",
                 extra={
+                    "tamper_log_id": getattr(r, "TamperLogId", None),
                     "row": r._asdict(),
                     "error": str(exc),
                 },
